@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 from tqdm.auto import tqdm
 from pathlib import Path
-from config import DATA_PROCESSED, DATA_RAW, MODELS_DIR
+from src.config import DATA_PROCESSED, DATA_RAW, MODELS_DIR
 
 # --- Constants ---
 TARGET = "target_qty"
@@ -137,3 +137,6 @@ def rolling_forecast():
     monthly_pred_df.to_csv(DATA_PROCESSED / "rolling_monthly_forecast.csv", index=False)
 
     print("Rolling forward forecast complete.")
+
+if __name__ == "__main__":
+    rolling_forecast()
