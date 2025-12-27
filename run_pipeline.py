@@ -8,6 +8,10 @@ from src.preprocessing import (
     create_target,
     train_test_split
 )
+from src.rolling_forward_evaluate import rolling_forecast
+from src.evaluate import evaluate_model
+from src.train import train_hist_gbr_model
+
 from src.config import DATA_PROCESSED
 
 def run_pipeline():
@@ -28,3 +32,5 @@ def run_pipeline():
 
 if __name__ == "__main__":
     run_pipeline()
+    # train_hist_gbr_model()
+    # evaluate_model()

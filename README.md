@@ -16,4 +16,6 @@ Predict daily and monthly demand for supermarket products.
 ## How to Run
 ```bash
 pip install -r requirements.txt
+pip install -e .
 python run_pipeline.py
+
