@@ -191,7 +191,7 @@ for sku in tqdm(daily["sku_id"].unique(), desc="Rolling forward"):
             window = history_qty  # shorter history, same logic
 
         row["sku_avg_28d"] = np.mean(window)
-        row["sku_std_28d"] = np.std(window)
+        row["sku_std_28d"] = np.std(window, ddof=1)
 
         # Guardrail for zero or nan std
         if not np.isfinite(row["sku_std_28d"]) or row["sku_std_28d"] == 0:
