@@ -12,7 +12,7 @@ from src.feature_engineering import (
 # ----------------------------
 # Re-load train_df for consistency with global model feature engineering
 # ----------------------------
-def rolling_forecast():
+def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
     train_df_for_features = pd.read_csv(DATA_PROCESSED / "train_data.csv",
         parse_dates=["date"]
     )
@@ -27,10 +27,16 @@ def rolling_forecast():
     # ----------------------------
     # Model and Data Paths
     # ----------------------------
-
-    model = joblib.load(
-        MODELS_DIR / "global_demand_model.joblib" # Ensure correct global model name
-    )
+    if model_type == "linear":
+        model = joblib.load(
+            MODELS_DIR / "linear_regression.joblib"
+        )
+        print("Using Linear Regression model for recursive forecasting.")
+    else:
+        model = joblib.load(
+            MODELS_DIR / "global_demand_model.joblib"
+        )
+        print("Using Histogram-based GBR model for recursive forecasting.")
 
     # Re-load daily to ensure clean slate for feature engineering
     daily = pd.read_csv(
@@ -69,39 +75,6 @@ def rolling_forecast():
         return (d - past.iloc[-1]).days if len(past) else np.nan
 
     # ----------------------------
-    # Feature Engineering for `daily` (consistent with Mv_jgUlwXkQp)
-    # ----------------------------
-    # # CATEGORY TARGET ENCODING
-    # category_mean = (
-    #     train_df_for_features # Use the re-loaded train_df for feature calculation
-    #     .groupby("category")[TARGET]
-    #     .mean()
-    # )
-    # daily["category_te"] = daily["category"].map(category_mean)
-
-    # global_mean = train_df_for_features[TARGET].mean()
-    # daily["category_te"] = daily["category_te"].fillna(global_mean)
-
-    # # SKU BEHAVIOR FEATURES (ROLLING)
-    # def add_sku_behavior_for_daily(df):
-    #     df = df.copy()
-    #     df["sku_avg_28d"] = (
-    #         df.groupby("sku_id")["daily_qty"]
-    #         .rolling(28)
-    #         .mean()
-    #         .reset_index(level=0, drop=True)
-    #     )
-    #     df["sku_std_28d"] = (
-    #         df.groupby("sku_id")["daily_qty"]
-    #         .rolling(28)
-    #         .std()
-    #         .reset_index(level=0, drop=True)
-    #     )
-    #     return df
-
-    # daily = add_sku_behavior_for_daily(daily)
-
-    # ----------------------------
     # FINAL FEATURES LIST (Updated to include new features)
     # ----------------------------
     FEATURES_BASE = [
@@ -130,12 +103,11 @@ def rolling_forecast():
     # ----------------------------
     daily = daily.dropna(subset=FEATURES + [TARGET])
 
-    # Start prediction
-    FORECAST_DAYS = 90  # ~3 months
+    # Start predictions
 
     all_daily_preds = []
 
-    for sku in tqdm(daily["sku_id"].unique(), desc="Rolling forward"):
+    for sku in tqdm(daily["sku_id"].unique(), desc="Recursive Forcast"):
         sku_hist = daily[daily["sku_id"] == sku].copy()
         sku_hist = sku_hist.sort_values("date")
 
@@ -167,22 +139,6 @@ def rolling_forecast():
 
             row["qty_roll_7"] = np.mean(history_qty[-7:])
             row["qty_roll_14"] = np.mean(history_qty[-14:])
-
-            # Calculate sku_avg_28d and sku_std_28d dynamically for forecast steps
-            # rolling_window_28 = 28
-            # if len(history_qty) >= rolling_window_28:
-            #     row["sku_avg_28d"] = np.mean(history_qty[-rolling_window_28:])
-            #     row["sku_std_28d"] = np.std(history_qty[-rolling_window_28:], ddof=1)
-            # elif len(history_qty) > 0: # If history is present but less than rolling_window_28
-            #     row["sku_avg_28d"] = np.mean(history_qty)
-            #     row["sku_std_28d"] = np.std(history_qty, ddof=1)
-            # else: # Fallback if history is completely empty (should not be reached if len(sku_hist) < 30 check is robust)
-            #     row["sku_avg_28d"] = 0.0
-            #     row["sku_std_28d"] = 0.0
-
-            # # If std is 0 (e.g., all values are same), set to small epsilon to avoid potential issues if std is used as a denominator
-            # if row["sku_std_28d"] == 0:
-            #     row["sku_std_28d"] = 1e-6
 
             rolling_window_28 = 28
 
@@ -225,15 +181,15 @@ def rolling_forecast():
 
     # Saving outputs
     daily_pred_df.to_csv(
-        DATA_PROCESSED / "rolling_daily_forecast.csv",
+        DATA_PROCESSED / "recursive_daily_forecast.csv",
         index=False
     )
 
     monthly_pred_df.to_csv(
-        DATA_PROCESSED / "rolling_monthly_forecast.csv",
+        DATA_PROCESSED / "recursive_monthly_forecast.csv",
         index=False
     )
 
-    print("Rolling-forward forecasting completed.")
+    print("Recursive forecasting completed.")
 if __name__ == "__main__":
-    rolling_forecast()
+    recursive_forecast()

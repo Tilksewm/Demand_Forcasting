@@ -8,7 +8,7 @@ from src.feature_engineering import (
     add_time_aware_category_te
 )
 
-def evaluate_model():
+def walk_forward_forecast():
     model = joblib.load(MODELS_DIR / "global_demand_model.joblib")
 
     train_df = pd.read_csv(DATA_PROCESSED / "train_data.csv", parse_dates=["date"])
@@ -76,7 +76,7 @@ def evaluate_model():
         0
     )
     monthly_results.to_csv(
-        DATA_PROCESSED / "global_monthly_predictions_per_sku.csv",
+        DATA_PROCESSED / "walk_forward_monthly_vs_actual.csv",
         index=False
     )
 
@@ -91,7 +91,7 @@ def evaluate_model():
     daily_mape = float(np.nanmean(np.where(daily_actual > 0, daily_abs / daily_actual * 100, np.nan))) if (daily_actual > 0).any() else 0.0
     daily_wape = (daily_abs.sum() / daily_actual.abs().sum() * 100) if daily_actual.abs().sum() > 0 else 0.0
 
-    print("===== DAILY vs ACTUAL =====")
+    print("===== DAILY WALK_FORWARD vs ACTUAL =====")
     print(f"Daily MAE: {daily_mae:.4f}")
     print(f"Daily MAPE: {daily_mape:.2f}%")
     print(f"Daily WAPE: {daily_wape:.2f}%")
@@ -100,7 +100,7 @@ def evaluate_model():
     monthly_abs = monthly_results["abs_error"]
     monthly_actual = monthly_results["actual_monthly_qty"]
 
-    print("===== MONTHLY vs ACTUAL =====")
+    print("===== MONTHLY WALK_FORWARD vs ACTUAL =====")
     monthly_mae = monthly_abs.mean()
     monthly_mape = float(np.nanmean(np.where(monthly_actual > 0, monthly_abs / monthly_actual * 100, np.nan))) if (monthly_actual > 0).any() else 0.0
     monthly_wape = (monthly_abs.sum() / monthly_actual.abs().sum() * 100) if monthly_actual.abs().sum() > 0 else 0.0
@@ -110,4 +110,4 @@ def evaluate_model():
     print(f"Monthly WAPE: {monthly_wape:.2f}%")
 
 if __name__ == "__main__":
-    evaluate_model()
+    walk_forward_forecast()

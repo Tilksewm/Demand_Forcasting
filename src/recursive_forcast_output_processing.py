@@ -1,18 +1,18 @@
 import pandas as pd
 import numpy as np
 from src.config import DATA_PROCESSED
-def evaluate_rolling_forecast():
+def process_recursive_forecast_output():
     # ----------------------------
     # PATHS
     # ----------------------------
     TEST_PATH = DATA_PROCESSED / "test_data.csv"
-    ROLLING_DAILY_PATH = DATA_PROCESSED / "rolling_daily_forecast.csv"
+    RECURSIVE_DAILY_PATH = DATA_PROCESSED / "recursive_daily_forecast.csv"
 
     # ----------------------------
     # LOAD
     # ----------------------------
     test_df = pd.read_csv(TEST_PATH, parse_dates=["date"])
-    rolling_daily = pd.read_csv(ROLLING_DAILY_PATH, parse_dates=["date"])
+    recursive_daily = pd.read_csv(RECURSIVE_DAILY_PATH, parse_dates=["date"])
 
     # Keep only what we need
     test_daily = test_df[["sku_id", "date", "target_qty"]].copy()
@@ -21,7 +21,7 @@ def evaluate_rolling_forecast():
     # MERGE
     # ----------------------------
     daily_compare = (
-        rolling_daily
+        recursive_daily
         .merge(
             test_daily,
             on=["sku_id", "date"],
@@ -51,7 +51,7 @@ def evaluate_rolling_forecast():
         daily_compare["target_qty"].sum()
     ) * 100
 
-    print("===== DAILY ROLLING vs ACTUAL =====")
+    print("===== DAILY RECURSIVE vs ACTUAL =====")
     print(f"MAE  : {daily_mae:.2f}")
     print(f"MAPE : {daily_mape:.2f}%")
     print(f"WAPE : {daily_wape:.2f}%")
@@ -70,19 +70,18 @@ def evaluate_rolling_forecast():
     )
 
     # ----------------------------
-    # LOAD ROLLING MONTHLY
+    # LOAD RECURSIVE MONTHLY
     # ----------------------------
-    rolling_monthly = pd.read_csv(
-        DATA_PROCESSED / "rolling_monthly_forecast.csv"
+    recursive_monthly = pd.read_csv(
+        DATA_PROCESSED / "recursive_monthly_forecast.csv"
     )
 
-    rolling_monthly["year_month"] = rolling_monthly["year_month"].astype("period[M]")
-
+    recursive_monthly["year_month"] = recursive_monthly["year_month"].astype("period[M]")
     # ----------------------------
     # MERGE
     # ----------------------------
     monthly_compare = (
-        rolling_monthly
+        recursive_monthly
         .merge(
             actual_monthly,
             on=["sku_id", "year_month"],
@@ -112,7 +111,7 @@ def evaluate_rolling_forecast():
         monthly_compare["actual_qty"].sum()
     ) * 100
 
-    print("\n===== MONTHLY ROLLING vs ACTUAL =====")
+    print("\n===== MONTHLY RECURSIVE vs ACTUAL =====")
     print(f"MAE  : {monthly_mae:.2f}")
     print(f"MAPE : {monthly_mape:.2f}%")
     print(f"WAPE : {monthly_wape:.2f}%")
@@ -125,14 +124,14 @@ def evaluate_rolling_forecast():
         "actual_qty": "actual_monthly_qty"
     })
     daily_compare.to_csv(
-        DATA_PROCESSED / "rolling_daily_vs_actual.csv",
+        DATA_PROCESSED / "recursive_daily_vs_actual.csv",
         index=False
     )
     monthly_compare.to_csv(
-        DATA_PROCESSED / "rolling_monthly_vs_actual.csv",
+        DATA_PROCESSED / "recursive_monthly_vs_actual.csv",
         index=False
     )
 
-    print("Saved: rolling_daily_vs_actual.csv and rolling_monthly_vs_actual.csv")
+    print("Saved: recursive_daily_vs_actual.csv and recursive_monthly_vs_actual.csv")
 if __name__ == "__main__":
-    evaluate_rolling_forecast()
+    process_recursive_forecast_output()
