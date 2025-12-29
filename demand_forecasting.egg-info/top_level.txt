@@ -1,5 +1,4 @@
 data
-models
 notebooks
 reports
 src

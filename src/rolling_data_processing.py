@@ -45,6 +45,7 @@ def evaluate_rolling_forecast():
     # METRICS
     # ----------------------------
     daily_mae = daily_compare["abs_error"].mean()
+    daily_mape = daily_compare["pct_error"].mean()
     daily_wape = (
         daily_compare["abs_error"].sum() /
         daily_compare["target_qty"].sum()
@@ -52,6 +53,7 @@ def evaluate_rolling_forecast():
 
     print("===== DAILY ROLLING vs ACTUAL =====")
     print(f"MAE  : {daily_mae:.2f}")
+    print(f"MAPE : {daily_mape:.2f}%")
     print(f"WAPE : {daily_wape:.2f}%")
 
 
@@ -104,6 +106,7 @@ def evaluate_rolling_forecast():
     # METRICS
     # ----------------------------
     monthly_mae = monthly_compare["abs_error"].mean()
+    monthly_mape = monthly_compare["pct_error"].mean()
     monthly_wape = (
         monthly_compare["abs_error"].sum() /
         monthly_compare["actual_qty"].sum()
@@ -111,6 +114,7 @@ def evaluate_rolling_forecast():
 
     print("\n===== MONTHLY ROLLING vs ACTUAL =====")
     print(f"MAE  : {monthly_mae:.2f}")
+    print(f"MAPE : {monthly_mape:.2f}%")
     print(f"WAPE : {monthly_wape:.2f}%")
 
     # ----------------------------

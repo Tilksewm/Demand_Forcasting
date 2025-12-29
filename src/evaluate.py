@@ -81,7 +81,33 @@ def evaluate_model():
     )
 
     print("Monthly per-SKU predictions generated.")
-    print(monthly_results.head())
+    # print(monthly_results.head())
+    # Daily metrics
+    daily_actual = test_df[TARGET]
+    daily_pred = test_df["daily_pred"]
+    daily_abs = (daily_pred - daily_actual).abs()
+
+    daily_mae = daily_abs.mean()
+    daily_mape = float(np.nanmean(np.where(daily_actual > 0, daily_abs / daily_actual * 100, np.nan))) if (daily_actual > 0).any() else 0.0
+    daily_wape = (daily_abs.sum() / daily_actual.abs().sum() * 100) if daily_actual.abs().sum() > 0 else 0.0
+
+    print("===== DAILY vs ACTUAL =====")
+    print(f"Daily MAE: {daily_mae:.4f}")
+    print(f"Daily MAPE: {daily_mape:.2f}%")
+    print(f"Daily WAPE: {daily_wape:.2f}%")
+
+    # Monthly metrics
+    monthly_abs = monthly_results["abs_error"]
+    monthly_actual = monthly_results["actual_monthly_qty"]
+
+    print("===== MONTHLY vs ACTUAL =====")
+    monthly_mae = monthly_abs.mean()
+    monthly_mape = float(np.nanmean(np.where(monthly_actual > 0, monthly_abs / monthly_actual * 100, np.nan))) if (monthly_actual > 0).any() else 0.0
+    monthly_wape = (monthly_abs.sum() / monthly_actual.abs().sum() * 100) if monthly_actual.abs().sum() > 0 else 0.0
+
+    print(f"Monthly MAE: {monthly_mae:.4f}")
+    print(f"Monthly MAPE: {monthly_mape:.2f}%")
+    print(f"Monthly WAPE: {monthly_wape:.2f}%")
 
 if __name__ == "__main__":
     evaluate_model()
