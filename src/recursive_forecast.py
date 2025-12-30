@@ -22,7 +22,7 @@ def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
     # CONFIG
     # ----------------------------
     TARGET = "target_qty"
-    MIN_HISTORY_DAYS = 90 # Not directly used for filtering in this cell, but good to keep consistent
+    MIN_HISTORY_DAYS = 90 # Minimum history days to consider SKU for forecasting
 
     # ----------------------------
     # Model and Data Paths
@@ -40,7 +40,7 @@ def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
 
     # Re-load daily to ensure clean slate for feature engineering
     daily = pd.read_csv(
-        DATA_PROCESSED / "train_data.csv", # Assuming daily is the training data to forecast from
+        DATA_PROCESSED / "train_data.csv", 
         parse_dates=["date"]
     )
     daily = daily.sort_values(["sku_id", "date"])
@@ -74,9 +74,9 @@ def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
         past = holiday_dates[holiday_dates <= d]
         return (d - past.iloc[-1]).days if len(past) else np.nan
 
-    # ----------------------------
-    # FINAL FEATURES LIST (Updated to include new features)
-    # ----------------------------
+
+    # FINAL FEATURES LIST 
+
     FEATURES_BASE = [
         "day_of_week",
         "is_weekend",
@@ -150,7 +150,7 @@ def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
             row["sku_avg_28d"] = np.mean(window)
             row["sku_std_28d"] = np.std(window, ddof=1)
 
-            # Guardrail for zero or nan std
+            # Handle edge case for std = 0 or NaN
             if not np.isfinite(row["sku_std_28d"]) or row["sku_std_28d"] == 0:
                 row["sku_std_28d"] = 1e-6
 

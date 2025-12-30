@@ -6,7 +6,7 @@ def add_sku_rolling_stats(df, window=28):
 
     rolled = (
         df.groupby("sku_id")["daily_qty"]
-          .shift(1)              # 🔥 critical
+          .shift(1)
           .rolling(window)
     )
 
@@ -23,7 +23,7 @@ def add_time_aware_category_te(df, target_col):
     for cat, grp in df.groupby("category"):
         expanding_mean = (
             grp[target_col]
-            .shift(1)                 # 🔥 no self, no future
+            .shift(1)
             .expanding()
             .mean()
         )

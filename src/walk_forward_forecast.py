@@ -24,7 +24,7 @@ def walk_forward_forecast():
     train_df = train_df[train_df["sku_id"].isin(valid_skus)]
     test_df  = test_df[test_df["sku_id"].isin(valid_skus)]
 
-    # Feature engineering (same logic as training)
+    # Feature engineering steps
     train_df = add_sku_rolling_stats(train_df)
     test_df  = add_sku_rolling_stats(test_df)
 
@@ -81,7 +81,7 @@ def walk_forward_forecast():
     )
 
     print("Monthly per-SKU predictions generated.")
-    # print(monthly_results.head())
+    
     # Daily metrics
     daily_actual = test_df[TARGET]
     daily_pred = test_df["daily_pred"]
