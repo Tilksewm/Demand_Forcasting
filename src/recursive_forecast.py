@@ -180,16 +180,27 @@ def recursive_forecast(FORECAST_DAYS=30, model_type="hist_gbr"):
     )
 
     # Saving outputs
-    daily_pred_df.to_csv(
-        DATA_PROCESSED / "recursive_daily_forecast.csv",
-        index=False
-    )
+    if model_type == "linear":
+        daily_pred_df.to_csv(
+            DATA_PROCESSED / "linear_recursive_daily_forecast.csv",
+            index=False
+        )
 
-    monthly_pred_df.to_csv(
-        DATA_PROCESSED / "recursive_monthly_forecast.csv",
-        index=False
-    )
-
-    print("Recursive forecasting completed.")
+        monthly_pred_df.to_csv(
+            DATA_PROCESSED / "linear_recursive_monthly_forecast.csv",
+            index=False
+        )
+        print("Linear Regression recursive forecasting completed.")
+    else:
+        daily_pred_df.to_csv(
+            DATA_PROCESSED / "recursive_daily_forecast.csv",
+            index=False
+        )
+        monthly_pred_df.to_csv(
+            DATA_PROCESSED / "recursive_monthly_forecast.csv",
+            index=False
+        )
+        print("Recursive forecasting completed.")
+        
 if __name__ == "__main__":
     recursive_forecast()

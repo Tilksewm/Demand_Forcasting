@@ -24,7 +24,7 @@ def run_pipeline():
     df = add_holiday_features(df)
     df = create_target(df)
 
-    train_df, test_df = train_test_split(df, "2023-09-11")
+    train_df, test_df = train_test_split(df, "2023-09-12")
 
     train_df.to_csv(DATA_PROCESSED / "train_data.csv", index=False)
     test_df.to_csv(DATA_PROCESSED / "test_data.csv", index=False)

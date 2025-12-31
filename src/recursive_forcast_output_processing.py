@@ -1,12 +1,15 @@
 import pandas as pd
 import numpy as np
 from src.config import DATA_PROCESSED
-def process_recursive_forecast_output():
+def process_recursive_forecast_output(model_type="hist_gbr"):
     # ----------------------------
     # PATHS
     # ----------------------------
     TEST_PATH = DATA_PROCESSED / "test_data.csv"
-    RECURSIVE_DAILY_PATH = DATA_PROCESSED / "recursive_daily_forecast.csv"
+    if model_type == "linear":
+        RECURSIVE_DAILY_PATH = DATA_PROCESSED / "linear_recursive_daily_forecast.csv"
+    else:
+        RECURSIVE_DAILY_PATH = DATA_PROCESSED / "recursive_daily_forecast.csv"
 
     # ----------------------------
     # LOAD
@@ -72,9 +75,14 @@ def process_recursive_forecast_output():
     # ----------------------------
     # LOAD RECURSIVE MONTHLY
     # ----------------------------
-    recursive_monthly = pd.read_csv(
-        DATA_PROCESSED / "recursive_monthly_forecast.csv"
-    )
+    if model_type == "linear":
+        recursive_monthly = pd.read_csv(
+            DATA_PROCESSED / "linear_recursive_monthly_forecast.csv"
+        )
+    else:
+        recursive_monthly = pd.read_csv(
+            DATA_PROCESSED / "recursive_monthly_forecast.csv"
+        )
 
     recursive_monthly["year_month"] = recursive_monthly["year_month"].astype("period[M]")
     # ----------------------------
@@ -123,15 +131,25 @@ def process_recursive_forecast_output():
         "predicted_qty": "predicted_monthly_qty",
         "actual_qty": "actual_monthly_qty"
     })
-    daily_compare.to_csv(
-        DATA_PROCESSED / "recursive_daily_vs_actual.csv",
-        index=False
-    )
-    monthly_compare.to_csv(
-        DATA_PROCESSED / "recursive_monthly_vs_actual.csv",
-        index=False
-    )
-
-    print("Saved: recursive_daily_vs_actual.csv and recursive_monthly_vs_actual.csv")
+    if model_type == "linear":
+        daily_compare.to_csv(
+            DATA_PROCESSED / "linear_recursive_daily_vs_actual.csv",
+            index=False
+        )
+        monthly_compare.to_csv(
+            DATA_PROCESSED / "linear_recursive_monthly_vs_actual.csv",
+            index=False
+        )
+        print("Saved: linear_recursive_daily_vs_actual.csv and linear_recursive_monthly_vs_actual.csv")
+    else:
+        daily_compare.to_csv(
+            DATA_PROCESSED / "recursive_daily_vs_actual.csv",
+            index=False
+        )
+        monthly_compare.to_csv(
+            DATA_PROCESSED / "recursive_monthly_vs_actual.csv",
+            index=False
+        )
+        print("Saved: recursive_daily_vs_actual.csv and recursive_monthly_vs_actual.csv")
 if __name__ == "__main__":
     process_recursive_forecast_output()
